@@ -83,6 +83,7 @@ def check_user():
         log = 1
 #Login Window
 def login():
+        check_file("passwords.txt")
         layout = [
             [ui.Text("Enter Password"),ui.InputText(key="-PWINPUT-")],
             [ui.B("Confirm"),ui.B("Cancel")]
