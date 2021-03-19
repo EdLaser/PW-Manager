@@ -136,7 +136,6 @@ def mainframe():
 
 
 #------------Main------------#
-check_file("passwords.txt")
 check_user()
 login()
 mainframe()
