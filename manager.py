@@ -23,20 +23,13 @@ def read_string_fromfile(file_name):
         string_read = file.read()
     return string_read
 #read passwords
-def read_all_password():
+def read_all_passwords():
     #treat file operation as whole statement to ease file handling
-    with open(".passwords.txt",'r') as read_file: #open file for reading
-        reader = csv.DictReader(read_file, delimiter=';') #setup reader
-        l_count = 0
-        for row in reader: #read all rows
-            if  l_count == 0:
-                print("Website\t\t Username\t Password")#Print Header of table
-                l_count+=1
-            else:
-                " ".join(row) #Join tupple together
-                print(f'{row["Website"]}\t\t {row[1]}\t\t {row[2]}')
-                l_count+=1
-    return 0
+    global pw_list
+    with open("passwords.txt",'r') as read_file: #open file for reading
+        reader = csv.reader(read_file, delimiter=';') #setup reader
+        for row in reader: #read all rows into dictionary with lists
+            pw_list[row[0]] = [row[1], row[2]]
 #write passwords to file
 def write_password():
     #get data from user
@@ -116,10 +109,35 @@ def login():
                         else:
                             ui.popup_error("Login failed, check data and try again")
 def mainframe():
+    button_pannel = [
+        [ui.B("Show all Passwords", key="-ALLPW-")],
+        [ui.B("Search for Passwod",key="-SEARPW-")],
+        [ui.B("EXIT")]
+    ]
+
+    text_field = [
+        [ui.Text(size=(40,40),key="-OUT-")]
+    ]
+
+    layout = [
+        [
+            ui.Column(button_pannel),
+            ui.VerticalSeparator(),
+            ui.Column(text_field),
+        ]
+    ]
+
+    window = ui.Window("Manager",layout)
+    while True:
+            event,values = window.read()
+            if event == "EXIT" or event == ui.WIN_CLOSED:
+                break
 
 
 #------------Main------------#
+check_file("passwords.txt")
 check_user()
 login()
+mainframe()
 
 
