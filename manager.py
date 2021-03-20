@@ -10,7 +10,6 @@ hashPW = ""     #PW to write in Data for Login
 pw_read = ""    #Global PW for Login
 pw_list = {}    #Dictionary for Entrys
 keys = []       #Keys of Dict (Websites) for Identification
-search = ""     #Website searched for 
 
 #------------Functions------------#
 #Check for file in path of code
@@ -28,6 +27,15 @@ def read_string_fromfile(file_name):
         string_read = file.read()
     return string_read
 
+#write passwords to file
+def write_password(web,user,pw):
+    with open("passwords.txt",'a') as write_file: #open file for reading
+        print(web,user,pw)
+        writeable = [web,user,pw]
+        print(writeable)
+        writer = csv.writer(write_file, delimiter= ';')#setup writer
+        writer.writerow(writeable)
+
 #read passwords
 def read_all_passwords():
     #treat file operation as whole statement to ease file handling
@@ -41,7 +49,6 @@ def read_all_passwords():
 
 #search for single password
 def search_password():
-    global search
     search = ""
     while search not in keys:
         search = ui.popup_get_text("Search for Website", size=(18,1), keep_on_top=True)
@@ -52,18 +59,38 @@ def search_password():
         else:               #WEbsite not found
             ui.popup_error("Website not featured!", keep_on_top=True)
 
-#write passwords to file
-def write_password():
-    #get data from user
-    website = input("Enter website refered to: ")
-    username = hinput("Enter username: ")
-    password = input("Password: ")
-    writeable =website,username,password
-    
-    with open("passwords.txt",'a') as write_file: #open file for reading
-        writer = csv.writer(write_file, delimiter= ';')#setup writer
-        writer.writerow(writeable)
-    return 0
+#add PAssword to list
+def add_password():
+    web = ""
+    user = ""
+    pw = ""
+
+    layout = [
+            [ui.Text("Website")],
+            [ui.InputText(key="-WEBSITE-",do_not_clear=False)],
+            [ui.Text("Username")],
+            [ui.InputText(key="-USERNAME-",do_not_clear=False)],
+            [ui.Text("Password")],
+            [ui.InputText(key="-PASSWORD-",do_not_clear=False)],
+            [ui.B("Confirm",bind_return_key=True),ui.B("Cancel")]
+        ]
+    window = ui.Window("New Password",layout)
+        
+    while True:
+        event, values = window.read()
+        if event == 'Cancel' or event == ui.WIN_CLOSED:
+            window.close()
+            return 0
+        else:
+            if event == "Confirm":
+                if ui.popup_yes_no("Set password ?",keep_on_top=True) == "Yes":
+                    web = values["-WEBSITE-"]
+                    user = values["-USERNAME-"]
+                    pw = values ["-PASSWORD-"]
+                    write_password(web,user,pw)
+                    return 1
+                else:
+                    return 0 #Failed
 
 #Check if a user is already present
 def check_user():
@@ -73,7 +100,6 @@ def check_user():
         print(pw_read)
     else:
         layout = [
-            [ui.Text("Create user",justification='c')],
             [ui.Text("Set Password")],
             [ui.InputText(key="-PWFIRST-",do_not_clear=False)],
             [ui.Text("Confirm Paswword")],
@@ -99,7 +125,7 @@ def check_user():
         #Convert PW to hash
         global hashPW
         hashPW = hashlib.md5(pwFirst.encode('utf-8'))
-        with open(".user.txt", 'w') as read_user:
+        with open(".user.txt", 'w') as read_user: #write pw hash to file
             read_user.write(hashPW.hexdigest())
             read_user.close()
         global log #Set log to 1 to see that pw has been writen first time
@@ -124,10 +150,10 @@ def login():
                     print("Entered:"+ values["-PWINPUT-"])
                     if log == 0:
                         if pw_read == passCoded.hexdigest():                     #Compare entered and read PW
-                            ui.popup("Login Succesfull",any_key_closes=True,keep_on_top=True) #closed by every key
+                            ui.popup("Login Succesfull",keep_on_top=True) #closed by every key
                             window.close()
                         else:
-                            ui.popup_error("Login failed, check data and try again",any_key_closes=True,keep_on_top=True)
+                            ui.popup_error("Login failed, check data and try again",keep_on_top=True)
                     if log == 1:                                                #First opening
                         if hashPW.hexdigest() == passCoded.hexdigest():
                             ui.popup("Login Succesfull",keep_on_top=True)
@@ -160,23 +186,29 @@ def mainframe():
     #Main Window
     window = ui.Window("Manager",layout)
     #read all passwords for backup
-    read_all_passwords()
     while True:
             event,values = window.read()
             if event == "EXIT" or event == ui.WIN_CLOSED:
                 break
             if event == "-ALLPW-":
+                read_all_passwords()
                 print(keys)
                 for x in keys:
                     data = pw_list[x]
                     window["-OUT-"].print(x +":   " + "username: " + data[0] + "   password: " + data[1])
-            if event == "-SEARPW-":
-                result = search_password()
-                if result == 0:
+            if event == "-SEARPW-": #Search PW Button pressed
+                result_searB = search_password()
+                if result_searB == 0:
                     continue
                 else:
-                    data = pw_list[result]
-                    window["-OUT-"].print(result+":   " + "username: " + data[0] + "   password: " + data[1])
+                    data = pw_list[result_searB]
+                    window["-OUT-"].print(result_searB+":   " + "username: " + data[0] + "   password: " + data[1])
+            if event =="-ADDPW-": #Add PW Button pressed
+                result_addB = add_password()
+                if result_addB == 0:
+                    continue
+                else:
+                    ui.popup("Success!")
 
 
 #------------Main------------#
