@@ -44,12 +44,13 @@ def search_password():
     global search
     search = ""
     while search not in keys:
-        search = ui.popup_get_text("Enter Website", size=(18,1), keep_on_top=True)
-        if search == None:
-            break
-        else:
+        search = ui.popup_get_text("Search for Website", size=(18,1), keep_on_top=True)
+        if search == None:  #If canceled 
+            return 0
+        if search in keys:  #If website is found
+            return search  
+        else:               #WEbsite not found
             ui.popup_error("Website not featured!", keep_on_top=True)
-    return search
 
 #write passwords to file
 def write_password():
@@ -146,7 +147,7 @@ def mainframe():
     ]
     #Textfield for Output
     text_field = [
-        [ui.Multiline(size=(40,30),key="-OUT-",do_not_clear=False)]
+        [ui.Multiline(size=(45,30),key="-OUT-",do_not_clear=False)]
     ]
 
     layout = [
@@ -171,8 +172,11 @@ def mainframe():
                     window["-OUT-"].print(x +":   " + "username: " + data[0] + "   password: " + data[1])
             if event == "-SEARPW-":
                 result = search_password()
-                data = pw_list[result]
-                window["-OUT-"].print(result+":   " + "username: " + data[0] + "   password: " + data[1])
+                if result == 0:
+                    continue
+                else:
+                    data = pw_list[result]
+                    window["-OUT-"].print(result+":   " + "username: " + data[0] + "   password: " + data[1])
 
 
 #------------Main------------#
