@@ -88,7 +88,8 @@ def add_password():
                     user = values["-USERNAME-"]
                     pw = values ["-PASSWORD-"]
                     write_password(web,user,pw)
-                    return 1
+                    ui.popup("Success!")
+                    continue
                 else:
                     return 0 #Failed
 
@@ -206,10 +207,7 @@ def mainframe():
             if event =="-ADDPW-": #Add PW Button pressed
                 result_addB = add_password()
                 if result_addB == 0:
-                    continue
-                else:
-                    ui.popup("Success!")
-
+                    continue         
 
 #------------Main------------#
 check_user()
