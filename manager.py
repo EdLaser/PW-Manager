@@ -152,16 +152,17 @@ def login():
                     if log == 0:
                         if pw_read == passCoded.hexdigest():                     #Compare entered and read PW
                             ui.popup("Login Succesfull",keep_on_top=True) #closed by every key
+                            return 1
                             window.close()
                         else:
                             ui.popup_error("Login failed, check data and try again",keep_on_top=True)
                     if log == 1:                                                #First opening
                         if hashPW.hexdigest() == passCoded.hexdigest():
                             ui.popup("Login Succesfull",keep_on_top=True)
+                            return 1
                             window.close()
                         else:
                             ui.popup_error("Login failed, check data and try again",keep_on_top=True)
-        return 1
 
 #Main Programm overlay
 def mainframe():
