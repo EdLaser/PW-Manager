@@ -144,7 +144,7 @@ def login():
         while True:
             event,values = window.read()
             if event == 'Cancel' or event == ui.WIN_CLOSED:
-                break
+                return 0 #End programm
             else:
                 if event == "Confirm":
                     passCoded = hashlib.md5(values["-PWINPUT-"].encode('utf-8')) #Entered PW as hash
@@ -211,5 +211,6 @@ def mainframe():
 
 #------------Main------------#
 check_user()
-login()
-mainframe()
+if login() == 1:
+    mainframe()
+
