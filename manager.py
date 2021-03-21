@@ -8,7 +8,7 @@ import hashlib # to Encode passwords
 log = 0         #check for first opening of user
 hashPW = ""     #PW to write in Data for Login
 pw_read = ""    #Global PW for Login
-pw_list = {}    #Dictionary for Entrys
+pw_dict = {}    #Dictionary for Entrys
 keys = []       #Keys of Dict (Websites) for Identification
 
 #------------Functions------------#
@@ -30,34 +30,35 @@ def read_string_fromfile(file_name):
 #write passwords to file
 def write_password(web,user,pw):
     with open("passwords.txt",'a') as write_file: #open file for reading
-        print(web,user,pw)
         writeable = [web,user,pw]
-        print(writeable)
         writer = csv.writer(write_file, delimiter= ';')#setup writer
         writer.writerow(writeable)
 
 #read passwords
 def read_all_passwords():
     #treat file operation as whole statement to ease file handling
-    global pw_list
+    global pw_dict
     with open("passwords.txt",'r') as read_file: #open file for reading
         reader = csv.reader(read_file, delimiter=';') #setup reader
         for row in reader: #read all rows into dictionary with lists
-            pw_list[row[0]] = [row[1], row[2]]
+            pw_dict[row[0]] = [row[1], row[2]]
         global keys
-        keys = pw_list.keys()
+        keys = pw_dict.keys()
 
 #search for single password
 def search_password():
     search = ""
     while search not in keys:
-        search = ui.popup_get_text("Search for Website", size=(18,1), keep_on_top=True)
+        search = ui.popup_get_text("Enter Website", size=(18,1), keep_on_top=True)
         if search == None:  #If canceled 
+                return 0
+        if ui.popup_yes_no("Confirm ?",keep_on_top=True) == "Yes":
+            if search in keys:  #If website is found
+                return search  
+            else:               #Website not found
+                ui.popup_error("Website not featured!", keep_on_top=True)
+        else:
             return 0
-        if search in keys:  #If website is found
-            return search  
-        else:               #WEbsite not found
-            ui.popup_error("Website not featured!", keep_on_top=True)
 
 #add PAssword to list
 def add_password():
@@ -93,6 +94,24 @@ def add_password():
                 else:
                     return 0 #Failed
 
+#delte Password
+def delete_password():
+    result = search_password()
+    print(result)
+    if result == 0:
+        return 0
+    #overwrite all except searched tupel
+    updated_list = []
+    with open("passwords.txt",'r') as write_file:
+        reader = csv.reader(write_file, delimiter= ';')
+        for x in reader:
+            if x[0]!= result:
+                print(pw_dict[x])
+                updated_list.append(x)
+        with open("passwords.txt",'w') as write_file: #open file for reading
+            writer = csv.writer(write_file, delimiter= ';')#setup writer
+            writer.writerows(updated_list)
+
 #Check if a user is already present
 def check_user():
     if check_file(".user.txt") and os.stat(".user.txt").st_size!=0: #. for hidden file
@@ -119,7 +138,7 @@ def check_user():
                     print(pwFirst)
                     pwSecond = values ["-PWSECOND-"]
                     if pwFirst == pwSecond:
-                        ui.popup("Success, Password set")
+                        ui.popup("Success, Password set",keep_on_top=True)
                         window.close()
                     else:
                         ui.popup_error("Passwords don't match")
@@ -171,14 +190,13 @@ def mainframe():
         [ui.B("Show all Passwords", key="-ALLPW-", font = 'AppleGothic')],
         [ui.B("Search for Password",key="-SEARPW-", font = 'AppleGothic')],
         [ui.B("Add Password",key="-ADDPW-", font = 'AppleGothic')],
+        [ui.B("Delete Password",key="-DELPW-", font = 'AppleGothic')],
         [ui.B("EXIT", font = 'AppleGothic')]
     ]
     #Textfield for Output
     text_field = [
         [ui.Multiline(size=(45,30),key="-OUT-",do_not_clear=False, font = 'AppleGothic')]
     ]
-
-    
 
     layout = [
         [
@@ -189,28 +207,31 @@ def mainframe():
     ]
     #Main Window
     window = ui.Window("Manager",layout)
-    #read all passwords for backup
     while True:
             event,values = window.read()
             if event == "EXIT" or event == ui.WIN_CLOSED:
                 break
             if event == "-ALLPW-":
                 read_all_passwords()
-                print(keys)
                 for x in keys:
-                    data = pw_list[x]
+                    data = pw_dict[x]
                     window["-OUT-"].print(x +":   " + "username: " + data[0] + "   password: " + data[1])
             if event == "-SEARPW-": #Search PW Button pressed
                 result_searB = search_password()
                 if result_searB == 0:
                     continue
                 else:
-                    data = pw_list[result_searB]
+                    data = pw_dict[result_searB]
                     window["-OUT-"].print(result_searB+":   " + "username: " + data[0] + "   password: " + data[1])
             if event =="-ADDPW-": #Add PW Button pressed
                 result_addB = add_password()
                 if result_addB == 0:
                     continue   
+            if event =="-DELPW-":
+                result_delB = delete_password()
+                read_all_passwords()
+                if result_delB == 0:
+                    continue
 
 #------------Main------------#
 check_user()
