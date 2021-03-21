@@ -168,15 +168,17 @@ def login():
 def mainframe():
     #Interaction Buttons
     button_pannel = [
-        [ui.B("Show all Passwords", key="-ALLPW-")],
-        [ui.B("Search for Password",key="-SEARPW-")],
-        [ui.B("Add Password",key="-ADDPW-")],
-        [ui.B("EXIT")]
+        [ui.B("Show all Passwords", key="-ALLPW-", font = 'AppleGothic')],
+        [ui.B("Search for Password",key="-SEARPW-", font = 'AppleGothic')],
+        [ui.B("Add Password",key="-ADDPW-", font = 'AppleGothic')],
+        [ui.B("EXIT", font = 'AppleGothic')]
     ]
     #Textfield for Output
     text_field = [
-        [ui.Multiline(size=(45,30),key="-OUT-",do_not_clear=False)]
+        [ui.Multiline(size=(45,30),key="-OUT-",do_not_clear=False, font = 'AppleGothic')]
     ]
+
+    
 
     layout = [
         [
@@ -208,7 +210,7 @@ def mainframe():
             if event =="-ADDPW-": #Add PW Button pressed
                 result_addB = add_password()
                 if result_addB == 0:
-                    continue         
+                    continue   
 
 #------------Main------------#
 check_user()
