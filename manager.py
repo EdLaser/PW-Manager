@@ -38,6 +38,7 @@ def write_password(web,user,pw):
 def read_all_passwords():
     #treat file operation as whole statement to ease file handling
     global pw_dict
+    pw_dict = {}
     with open("passwords.txt",'r') as read_file: #open file for reading
         reader = csv.reader(read_file, delimiter=';') #setup reader
         for row in reader: #read all rows into dictionary with lists
@@ -102,12 +103,12 @@ def delete_password():
         return 0
     #overwrite all except searched tupel
     updated_list = []
-    with open("passwords.txt",'r') as write_file:
-        reader = csv.reader(write_file, delimiter= ';')
+    with open("passwords.txt") as read_file:
+        reader = csv.reader(read_file, delimiter= ';')
         for x in reader:
             if x[0]!= result:
-                print(pw_dict[x])
                 updated_list.append(x)
+        print(updated_list)
         with open("passwords.txt",'w') as write_file: #open file for reading
             writer = csv.writer(write_file, delimiter= ';')#setup writer
             writer.writerows(updated_list)
