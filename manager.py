@@ -186,34 +186,31 @@ def login():
 
 #Main Programm overlay
 def mainframe():
-    #Interaction Buttons
-    button_pannel = [
-        [ui.B("Show all Passwords", key="-ALLPW-", font = ('AppleGothic',12))],
-        [ui.B("Search for Password",key="-SEARPW-", font = ('AppleGothic',12))],
-        [ui.B("Add Password",key="-ADDPW-", font = ('AppleGothic',12))],
-        [ui.B("Delete Password",key="-DELPW-", font = ('AppleGothic',12))],
-        [ui.B("EXIT", font = ('AppleGothic',12))]
-    ]
     #Textfield for Output
     text_field = [
         [ui.Multiline(size=(70,30),key="-OUT-",do_not_clear=False, font = ('AppleGothic',12))]
     ]
 
     layout = [
+        [ui.B("Show all Passwords", key="-ALLPW-", font = ('AppleGothic',12)),
+         ui.B("Search for Password",key="-SEARPW-", font = ('AppleGothic',12)),
+         ui.B("Add Password",key="-ADDPW-", font = ('AppleGothic',12)),
+         ui.B("Delete Password",key="-DELPW-", font = ('AppleGothic',12)),
+         ui.B("EXIT", font = ('AppleGothic',12))],
         [
-            ui.Column(button_pannel),
-            ui.VerticalSeparator(),
+            ui.HorizontalSeparator(),
             ui.Column(text_field),
         ]
     ]
     #Main Window
-    window = ui.Window("Manager",layout)
+    window = ui.Window("Manager", layout)
     while True:
             event,values = window.read()
             if event == "EXIT" or event == ui.WIN_CLOSED:
                 break
             if event == "-ALLPW-":
                 read_all_passwords()
+                window["-OUT-"].update(font = ('AppleGothic',12))
                 for x in keys:
                     data = pw_dict[x]
                     window["-OUT-"].print(x +":" + "\t\t\tusername: " + data[0] + "\t\t\tpassword: " + data[1])
