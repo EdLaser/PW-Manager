@@ -14,18 +14,28 @@ pw_dict = {}    #Dictionary for Entrys
 keys = []       #Keys of Dict (Websites) for Identification
 #------------Functions------------#
 def loading_bar():
-    ui.theme("")
     layout = [
         [ui.Text("loading...")],
-        [ui.ProgressBar(180, orientation='h', size=(20,20), key='-prog-')]
+        [ui.ProgressBar(100, orientation='h', size=(20,20), key='-prog-')]
     ]
     window = ui.Window("Starting..",layout)
     prog_bar = window['-prog-']
-    for i in range(180):
-        event,values = window.read(timeout=6)
+    for i in range(100):
+        event,values = window.read(timeout=1)
         if event == ui.WIN_CLOSED:
             break
         prog_bar.UpdateBar(i + 1)
+    window.close()
+
+#Generieren eines neuen sicheren Passworts
+def generate_password():
+    characters = string.digits + string.ascii_letters + string.punctuation 
+    password = "".join(choice(characters) for x in range(14))
+    if ui.PopupYesNo("Set as new Password?", password, font = ("AppleGothic",12)) == "Yes":
+        return password
+    else:
+        return
+
 #Check for file in path of code
 def check_file(file_name):
     if os.path.exists(file_name): #if path refers to existing path
@@ -60,12 +70,28 @@ def read_all_passwords():
         global keys
         keys = pw_dict.keys()
 
+#Enter Website
+def enter_website():
+    layout = [
+        [ui.Text("Enter Website", font = ('AppleGothic',12))],
+        [ui.InputText(size =(12,1), key = "-WEB-", do_not_clear=False, font = ('AppleGothic',12))],
+        [ui.Button("OK", font = ('AppleGothic',12)),ui.B("Cancel", font = ('AppleGothic',12))],
+    ]
+    window = ui.Window("Test ", layout)
+    event, values = window()
+    if event == "Cancel" or event == ui.WIN_CLOSED:
+        window.close()
+        return "none"
+    if event == "OK":
+        window.close()
+        return values["-WEB-"]
+
 #search for single password
 def search_password():
     search = ""
     while search not in keys:
-        search = ui.popup_get_text("Enter Website", size=(18,1), keep_on_top=True, font = ('AppleGothic',12))
-        if search == None:  #If canceled 
+        search = enter_website()
+        if search == "none":  #If canceled 
                 return 0
         if ui.popup_yes_no("Confirm ?",keep_on_top=True, font = ('AppleGothic',12)) == "Yes":
             if search in keys:  #If website is found
@@ -88,7 +114,7 @@ def add_password():
             [ui.InputText(key="-USERNAME-",do_not_clear=False, font = ('AppleGothic',12))],
             [ui.Text("Password", font = ('AppleGothic',12))],
             [ui.InputText(key="-PASSWORD-",do_not_clear=False, font = ('AppleGothic',12))],
-            [ui.B("Confirm",bind_return_key=True, font = ('AppleGothic',12)),ui.B("Cancel", font = ('AppleGothic',12))]
+            [ui.B("Confirm",bind_return_key=True, font = ('AppleGothic',12)),ui.B("Cancel", font = ('AppleGothic',12)), ui.B("Random PW", font = ('AppleGothic',12), key="-RANDOM-")]
         ]
     window = ui.Window("New Password",layout)
         
@@ -105,14 +131,17 @@ def add_password():
                     pw = values ["-PASSWORD-"]
                     write_password(web,user,pw)
                     ui.popup("Success!", auto_close=True, auto_close_duration=0.75, font = ('AppleGothic',12))
+                    read_all_passwords()
                     continue
                 else:
                     return 0 #Failed
+            if event == "-RANDOM-":
+                pw = generate_password()
+                window["-PASSWORD-"].update(pw)
 
-#delte Password
+#delete Password
 def delete_password():
     result = search_password()
-    print(result)
     if result == 0:
         return 0
     #overwrite all except searched tupel
@@ -126,15 +155,6 @@ def delete_password():
             writer = csv.writer(write_file, delimiter= ';')#setup writer
             writer.writerows(updated_list)
 
-#Generieren eines neuen sicheren Passworts
-def generate_password():
-    
-    characters = string.digits + string.ascii_letters + string.punctuation 
-    password = "".join(choice(characters) for x in range(12))
-    
-
-    ui.popup("Neues Passwort", password)
-
 #Check if a user is already present
 def check_user():
     if check_file(".user.txt") and os.stat(".user.txt").st_size!=0: #. for hidden file, check if file exists and is no empty
@@ -143,11 +163,11 @@ def check_user():
         print(pw_read)
     else:
         layout = [
-            [ui.Text("Set Password")],
-            [ui.InputText(key="-PWFIRST-",do_not_clear=False)],
-            [ui.Text("Confirm Paswword")],
-            [ui.InputText(key="-PWSECOND-",do_not_clear=False)],
-            [ui.B("Confirm",bind_return_key=True),ui.B("Cancel")]
+            [ui.Text("Set Password", font = ('AppleGothic',12))],
+            [ui.InputText(key="-PWFIRST-",do_not_clear=False, font = ('AppleGothic',12))],
+            [ui.Text("Confirm Paswword", font = ('AppleGothic',12))],
+            [ui.InputText(key="-PWSECOND-",do_not_clear=False, font = ('AppleGothic',12))],
+            [ui.B("Confirm",bind_return_key=True, font = ('AppleGothic',12)),ui.B("Cancel", font = ('AppleGothic',12)), ui.B("Random PW", font = ('AppleGothic',12), key="-RANDOM-"),ui.B("Clear", font = ('AppleGothic',12), key="-CLEAR-")]
         ]
         window = ui.Window("New user",layout)
         #Create window
@@ -165,6 +185,14 @@ def check_user():
                         window.close()
                     else:
                         ui.popup_error("Passwords don't match", font = ('AppleGothic',12))
+                if event =="-RANDOM-":
+                    random = generate_password()
+                    window["-PWFIRST-"].update(random)
+                    window["-PWSECOND-"].update(random)
+                if event =="-CLEAR-":
+                    window["-PWFIRST-"].update("")
+                    window["-PWSECOND-"].update("")
+                    
         #Convert PW to hash
         global hashPW
         hashPW = hashlib.md5(pwFirst.encode('utf-8'))
@@ -194,8 +222,8 @@ def login():
                     if log == 0:
                         if pw_read == passCoded.hexdigest():                     #Compare entered and read PW
                             ui.popup("Login Succesfull",keep_on_top=True, auto_close=True, auto_close_duration=0.75, font = ('AppleGothic',12)) #closed by every key
-                            return 1
                             window.close()
+                            return 1
                         else:
                             ui.popup_error("Login failed, check data and try again",keep_on_top=True, font = ('AppleGothic',12))
                     if log == 1:                                                #First opening
@@ -213,6 +241,7 @@ def print_result(res,window):
 
 # Main Programm overlay
 def mainframe():
+    read_all_passwords()
     #Textfield for Outputx
     text_field = [
         [ui.Multiline(size=(70,30),key="-OUT-",do_not_clear=False, font = ('AppleGothic',12))]
@@ -259,9 +288,8 @@ def mainframe():
                     continue
 
 #------------Main------------#
-ui.theme() #LightGray1 'DefaultNoMoreNagging'
+ui.theme('DefaultNoMoreNagging') #LightGray1 'DefaultNoMoreNagging' DarkBlack
 loading_bar()
 check_user()
 if login() == 1:
     mainframe()
-
