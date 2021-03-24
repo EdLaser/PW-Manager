@@ -10,8 +10,20 @@ hashPW = ""     #PW to write in Data for Login
 pw_read = ""    #Global PW for Login
 pw_dict = {}    #Dictionary for Entrys
 keys = []       #Keys of Dict (Websites) for Identification
-
 #------------Functions------------#
+def loading_bar():
+    ui.theme("")
+    layout = [
+        [ui.Text("loading...")],
+        [ui.ProgressBar(180, orientation='h', size=(20,20), key='-prog-')]
+    ]
+    window = ui.Window("Starting..",layout)
+    prog_bar = window['-prog-']
+    for i in range(180):
+        event,values = window.read(timeout=6)
+        if event == ui.WIN_CLOSED:
+            break
+        prog_bar.UpdateBar(i + 1)
 #Check for file in path of code
 def check_file(file_name):
     if os.path.exists(file_name): #if path refers to existing path
@@ -90,7 +102,7 @@ def add_password():
                     user = values["-USERNAME-"]
                     pw = values ["-PASSWORD-"]
                     write_password(web,user,pw)
-                    ui.popup("Success!", font = ('AppleGothic',12))
+                    ui.popup("Success!", auto_close=True, auto_close_duration=0.75, font = ('AppleGothic',12))
                     continue
                 else:
                     return 0 #Failed
@@ -108,14 +120,13 @@ def delete_password():
         for x in reader:
             if x[0]!= result:
                 updated_list.append(x)
-        print(updated_list)
         with open("passwords.txt",'w') as write_file: #open file for reading
             writer = csv.writer(write_file, delimiter= ';')#setup writer
             writer.writerows(updated_list)
 
 #Check if a user is already present
 def check_user():
-    if check_file(".user.txt") and os.stat(".user.txt").st_size!=0: #. for hidden file
+    if check_file(".user.txt") and os.stat(".user.txt").st_size!=0: #. for hidden file, check if file exists and is no empty
         global pw_read #read in login PW
         pw_read = read_string_fromfile(".user.txt") 
         print(pw_read)
@@ -139,7 +150,7 @@ def check_user():
                     print(pwFirst)
                     pwSecond = values ["-PWSECOND-"]
                     if pwFirst == pwSecond:
-                        ui.popup("Success, Password set",keep_on_top=True)
+                        ui.popup("Success, Password set", auto_close=True, auto_close_duration=0.75, keep_on_top=True)
                         window.close()
                     else:
                         ui.popup_error("Passwords don't match", font = ('AppleGothic',12))
@@ -157,7 +168,7 @@ def check_user():
 def login():
         check_file("passwords.txt")
         layout = [
-            [ui.Text("Enter Password",font = ('AppleGothic',14)),ui.InputText(size= (25,2) ,key="-PWINPUT-",do_not_clear=False,font = ('AppleGothic',12))],
+            [ui.Text("Enter Password",font = ('AppleGothic',14)),ui.VerticalSeparator(),ui.InputText(size= (25,2) ,key="-PWINPUT-",do_not_clear=False,font = ('AppleGothic',12))],
             [ui.B("Confirm",bind_return_key=True,auto_size_button=True, font = ('AppleGothic',12)),ui.B("Cancel", font = ('AppleGothic',12))]
         ]
         window = ui.Window("Login", layout,size=(250,100))
@@ -167,26 +178,31 @@ def login():
                 return 0 #End programm
             else:
                 if event == "Confirm":
+                    loading_bar()
                     passCoded = hashlib.md5(values["-PWINPUT-"].encode('utf-8')) #Entered PW as hash
-                    print("Entered:"+ values["-PWINPUT-"])
                     if log == 0:
                         if pw_read == passCoded.hexdigest():                     #Compare entered and read PW
-                            ui.popup("Login Succesfull",keep_on_top=True, font = ('AppleGothic',12)) #closed by every key
+                            ui.popup("Login Succesfull",keep_on_top=True, auto_close=True, auto_close_duration=0.75, font = ('AppleGothic',12)) #closed by every key
                             return 1
                             window.close()
                         else:
                             ui.popup_error("Login failed, check data and try again",keep_on_top=True, font = ('AppleGothic',12))
                     if log == 1:                                                #First opening
                         if hashPW.hexdigest() == passCoded.hexdigest():
-                            ui.popup("Login Succesfull",keep_on_top=True, font = ('AppleGothic',12))
+                            ui.popup("Login Succesfull",keep_on_top=True, auto_close=True, auto_close_duration=0.75, font = ('AppleGothic',12))
                             return 1
                             window.close()
                         else:
                             ui.popup_error("Login failed, check data and try again",keep_on_top=True, font = ('AppleGothic',12))
 
-#Main Programm overlay
+#Funtkion To rpint results
+def print_result(res,window):
+    data = pw_dict[res]
+    window["-OUT-"].print(res+":" + "\t\t\tusername: " + data[0] + "\t\t\tpassword: " + data[1])
+
+# Main Programm overlay
 def mainframe():
-    #Textfield for Output
+    #Textfield for Outputx
     text_field = [
         [ui.Multiline(size=(70,30),key="-OUT-",do_not_clear=False, font = ('AppleGothic',12))]
     ]
@@ -197,10 +213,8 @@ def mainframe():
          ui.B("Add Password",key="-ADDPW-", font = ('AppleGothic',12)),
          ui.B("Delete Password",key="-DELPW-", font = ('AppleGothic',12)),
          ui.B("EXIT", font = ('AppleGothic',12))],
-        [
-            ui.HorizontalSeparator(),
-            ui.Column(text_field),
-        ]
+        [ui.HorizontalSeparator()],
+        [ui.Multiline(size=(70,30),key="-OUT-",do_not_clear=False,font=('AppleGothic', 14))]
     ]
     #Main Window
     window = ui.Window("Manager", layout)
@@ -210,18 +224,14 @@ def mainframe():
                 break
             if event == "-ALLPW-":
                 read_all_passwords()
-                window["-OUT-"].update(font = ('AppleGothic',12))
                 for x in keys:
-                    data = pw_dict[x]
-                    window["-OUT-"].print(x +":" + "\t\t\tusername: " + data[0] + "\t\t\tpassword: " + data[1])
-                    window["-OUT-"].update(font = ('AppleGothic',12))
+                    print_result(x,window)
             if event == "-SEARPW-": #Search PW Button pressed
                 result_searB = search_password()
                 if result_searB == 0:
                     continue
                 else:
-                    data = pw_dict[result_searB]
-                    window["-OUT-"].print(result_searB+":   " + "username: " + data[0] + "   password: " + data[1])
+                    print_result(result_searB,window)
             if event =="-ADDPW-": #Add PW Button pressed
                 result_addB = add_password()
                 if result_addB == 0:
@@ -233,6 +243,8 @@ def mainframe():
                     continue
 
 #------------Main------------#
+ui.theme() #LightGray1 'DefaultNoMoreNagging'
+loading_bar()
 check_user()
 if login() == 1:
     mainframe()
