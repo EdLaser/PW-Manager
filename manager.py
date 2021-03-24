@@ -3,6 +3,8 @@ import os.path #add functions for path names
 import csv     #work with csv lists
 import PySimpleGUI as ui#GUI 
 import hashlib # to Encode passwords
+import string #to define Password characters
+from random import * #generate random passords
 
 #global variables
 log = 0         #check for first opening of user
@@ -124,6 +126,15 @@ def delete_password():
             writer = csv.writer(write_file, delimiter= ';')#setup writer
             writer.writerows(updated_list)
 
+#Generieren eines neuen sicheren Passworts
+def generate_password():
+    
+    characters = string.digits + string.ascii_letters + string.punctuation 
+    password = "".join(choice(characters) for x in range(12))
+    
+
+    ui.popup("Neues Passwort", password)
+
 #Check if a user is already present
 def check_user():
     if check_file(".user.txt") and os.stat(".user.txt").st_size!=0: #. for hidden file, check if file exists and is no empty
@@ -212,9 +223,16 @@ def mainframe():
          ui.B("Search for Password",key="-SEARPW-", font = ('AppleGothic',12)),
          ui.B("Add Password",key="-ADDPW-", font = ('AppleGothic',12)),
          ui.B("Delete Password",key="-DELPW-", font = ('AppleGothic',12)),
+         ui.B("Generate Password",key="-GEN-", font = ('AppleGothic',12)),
          ui.B("EXIT", font = ('AppleGothic',12))],
+<<<<<<< HEAD
         [ui.HorizontalSeparator()],
         [ui.Multiline(size=(70,30),key="-OUT-",do_not_clear=False,font=('AppleGothic', 14))]
+=======
+        [
+            ui.Column(text_field)
+        ]
+>>>>>>> f8563446ae4cf3a4a199adf17a773d001f2f7b5d
     ]
     #Main Window
     window = ui.Window("Manager", layout)
@@ -224,8 +242,16 @@ def mainframe():
                 break
             if event == "-ALLPW-":
                 read_all_passwords()
+<<<<<<< HEAD
                 for x in keys:
                     print_result(x,window)
+=======
+                window["-OUT-"].print("Website" + "\t\t\tUsername " + "\t\t\tPassword")
+                for x in keys:
+                    data = pw_dict[x]
+                    window["-OUT-"].print(x + "\t\t\t" + data[0] + "\t\t\t" + data[1])
+                    window["-OUT-"].update(font = ('AppleGothic',12))
+>>>>>>> f8563446ae4cf3a4a199adf17a773d001f2f7b5d
             if event == "-SEARPW-": #Search PW Button pressed
                 result_searB = search_password()
                 if result_searB == 0:
@@ -240,6 +266,10 @@ def mainframe():
                 result_delB = delete_password()
                 read_all_passwords()
                 if result_delB == 0:
+                    continue
+            if event == "-GEN-":
+                result_gen = generate_password()
+                if result_gen == 0:
                     continue
 
 #------------Main------------#
