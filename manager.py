@@ -225,14 +225,8 @@ def mainframe():
          ui.B("Delete Password",key="-DELPW-", font = ('AppleGothic',12)),
          ui.B("Generate Password",key="-GEN-", font = ('AppleGothic',12)),
          ui.B("EXIT", font = ('AppleGothic',12))],
-<<<<<<< HEAD
         [ui.HorizontalSeparator()],
         [ui.Multiline(size=(70,30),key="-OUT-",do_not_clear=False,font=('AppleGothic', 14))]
-=======
-        [
-            ui.Column(text_field)
-        ]
->>>>>>> f8563446ae4cf3a4a199adf17a773d001f2f7b5d
     ]
     #Main Window
     window = ui.Window("Manager", layout)
@@ -242,16 +236,8 @@ def mainframe():
                 break
             if event == "-ALLPW-":
                 read_all_passwords()
-<<<<<<< HEAD
                 for x in keys:
                     print_result(x,window)
-=======
-                window["-OUT-"].print("Website" + "\t\t\tUsername " + "\t\t\tPassword")
-                for x in keys:
-                    data = pw_dict[x]
-                    window["-OUT-"].print(x + "\t\t\t" + data[0] + "\t\t\t" + data[1])
-                    window["-OUT-"].update(font = ('AppleGothic',12))
->>>>>>> f8563446ae4cf3a4a199adf17a773d001f2f7b5d
             if event == "-SEARPW-": #Search PW Button pressed
                 result_searB = search_password()
                 if result_searB == 0:
