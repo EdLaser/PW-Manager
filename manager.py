@@ -125,16 +125,20 @@ def add_password():
             return 0
         else:
             if event == "Confirm":
-                if ui.popup_yes_no("Set password ?",keep_on_top=True, font = ('AppleGothic',12)) == "Yes":
-                    web = values["-WEBSITE-"]
-                    user = values["-USERNAME-"]
-                    pw = values ["-PASSWORD-"]
-                    write_password(web,user,pw)
-                    ui.popup("Success!", auto_close=True, auto_close_duration=0.75, font = ('AppleGothic',12))
-                    read_all_passwords()
+                if  not values["-WEBSITE-"] or not values["-USERNAME-"] or not values ["-PASSWORD-"]:
+                    ui.popup_error("Please fill in all values",keep_on_top=True, font = ('AppleGothic',12))
                     continue
                 else:
-                    return 0 #Failed
+                    if ui.popup_yes_no("Set password ?",keep_on_top=True, font = ('AppleGothic',12)) == "Yes":
+                        web = values["-WEBSITE-"]
+                        user = values["-USERNAME-"]
+                        pw = values ["-PASSWORD-"]
+                        write_password(web,user,pw)
+                        ui.popup("Success!", auto_close=True, auto_close_duration=0.75, font = ('AppleGothic',12))
+                        read_all_passwords()
+                        continue
+                    else:
+                        return 0 #Failed
             if event == "-RANDOM-":
                 pw = generate_password()
                 window["-PASSWORD-"].update(pw)
@@ -237,7 +241,7 @@ def login():
 #Funktion To print results
 def print_result(res,window):
     data = pw_dict[res]
-    window["-OUT-"].print(res + "\t\t\t" + data[0] + "\t\t\t" + data[1])
+    window["-OUT-"].print(res +" : \t\t\tUsername: " + data[0] + "\t\t\tPassword: " + data[1])
 
 # Main Programm overlay
 def mainframe():
@@ -265,7 +269,6 @@ def mainframe():
                 break
             if event == "-ALLPW-":
                 read_all_passwords()
-                window["-OUT-"].print("Website" + "\t\t\tUsername" + "\t\t\tPassword")
                 for x in keys:
                     print_result(x,window)
             if event == "-SEARPW-": #Search PW Button pressed
