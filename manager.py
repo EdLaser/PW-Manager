@@ -4,7 +4,7 @@ import csv     #work with csv lists
 import PySimpleGUI as ui#GUI 
 import hashlib # to Encode passwords
 import string #to define Password characters
-from random import * #generate random passords
+from random import * #generate random passwords
 
 #global variables
 log = 0         #check for first opening of user
@@ -234,10 +234,11 @@ def login():
                         else:
                             ui.popup_error("Login failed, check data and try again",keep_on_top=True, font = ('AppleGothic',12))
 
-#Funtkion To rpint results
+#Funktion To print results
 def print_result(res,window):
     data = pw_dict[res]
-    window["-OUT-"].print(res+":" + "\t\t\tusername: " + data[0] + "\t\t\tpassword: " + data[1])
+    window["-OUT-"].print("Website" + "\t\t\tUsername" + "\t\t\tPassword")
+    window["-OUT-"].print(res + "\t\t\t" + data[0] + "\t\t\t" + data[1])
 
 # Main Programm overlay
 def mainframe():
