@@ -237,7 +237,6 @@ def login():
 #Funktion To print results
 def print_result(res,window):
     data = pw_dict[res]
-    window["-OUT-"].print("Website" + "\t\t\tUsername" + "\t\t\tPassword")
     window["-OUT-"].print(res + "\t\t\t" + data[0] + "\t\t\t" + data[1])
 
 # Main Programm overlay
@@ -266,6 +265,7 @@ def mainframe():
                 break
             if event == "-ALLPW-":
                 read_all_passwords()
+                window["-OUT-"].print("Website" + "\t\t\tUsername" + "\t\t\tPassword")
                 for x in keys:
                     print_result(x,window)
             if event == "-SEARPW-": #Search PW Button pressed
