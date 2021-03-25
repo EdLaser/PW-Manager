@@ -53,7 +53,7 @@ def read_string_fromfile(file_name):
 
 #write passwords to file
 def write_password(web,user,pw):
-    with open("passwords.txt",'a') as write_file: #open file for reading
+    with open(".passwords.txt",'a') as write_file: #open file for reading
         writeable = [web,user,pw]
         writer = csv.writer(write_file, delimiter= ';')#setup writer
         writer.writerow(writeable)
@@ -63,7 +63,7 @@ def read_all_passwords():
     #treat file operation as whole statement to ease file handling
     global pw_dict
     pw_dict = {}
-    with open("passwords.txt",'r') as read_file: #open file for reading
+    with open(".passwords.txt",'r') as read_file: #open file for reading
         reader = csv.reader(read_file, delimiter=';') #setup reader
         for row in reader: #read all rows into dictionary with lists
             pw_dict[row[0]] = [row[1], row[2]]
@@ -209,7 +209,7 @@ def check_user():
 
 #Login Window
 def login():
-        check_file("passwords.txt")
+        check_file(".passwords.txt")
         layout = [
             [ui.Text("Enter Password",font = ('AppleGothic',14)),ui.VerticalSeparator(),ui.InputText(size= (25,2) ,key="-PWINPUT-",do_not_clear=False,font = ('AppleGothic',12))],
             [ui.B("Confirm",bind_return_key=True,auto_size_button=True, font = ('AppleGothic',12)),ui.B("Cancel", font = ('AppleGothic',12))]
