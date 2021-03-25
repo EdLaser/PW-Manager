@@ -1,14 +1,14 @@
 #------------Imports------------#
-import os.path #add functions for path names
-import csv     #work with csv lists
+import os.path           #add functions for path names
+import csv               #work with csv files
 import PySimpleGUI as ui #GUI 
-import hashlib # to Encode passwords
-import string #to define Password characters
-from random import * #generate random passwords
+import hashlib           # to Encode passwords
+import string            #to define Password characters
+from random import *     #generate random passwords
 
 #global variables
 log = 0         #check for first opening of user
-hash_pw = ""     #PW to write in Data for Login
+hash_pw = ""    #PW to write in Data for Login
 pw_read = ""    #Global PW for Login
 pw_dict = {}    #Dictionary for Entrys
 keys = []       #Keys of Dict (Websites) for Identification
@@ -158,20 +158,39 @@ def add_password():
 
 #delete Password
 def delete_password():
-    #asign result with a searched password
-    result = search_password()
-    if result == 0:                         #if search is canceled (result = 0) return 0 as failure
-        return 0
-    #overwrite all except searched tupel
-    updated_list = [] #create the updated list after delition
-    with open(".passwords.txt") as read_file:                 #open the password file
-        reader = csv.reader(read_file, delimiter= ';')        #setup the reader
-        for x in reader:                                      #loop thrue all read rows
-            if x[0]!= result:                                 #as long as the website is not the searched website
-                updated_list.append(x)                        #append the tupel to the updated list
-        with open("passwords.txt",'w') as write_file:         #open file to write the password
-            writer = csv.writer(write_file, delimiter= ';')   #setup writer
-            writer.writerows(updated_list)                    #write the updated list into the file
+    #refresh dictionary
+    read_all_passwords()
+    elements = list(keys)   #get dict keys as list
+    #create the checkbox
+    box = [
+        [ui.Listbox(values=elements, select_mode = ui.LISTBOX_SELECT_MODE_SINGLE, size=(30,len(elements)), bind_return_key=True, font = ('AppleGothic', 12), key = "-BOX-")],
+        [ui.B("Cancel")]
+    ]
+    #create Window
+    window = ui.Window("Delete a password", box)
+    #event loop
+    while True:
+        event, values = window.read()
+        if event =="Cancel" or event == ui.WIN_CLOSED:  #cancel is pressed or window is closed
+            window.close()
+            return 0                                    #return 0 as closed
+        else:
+            result = str(values["-BOX-"][0])            #Convert the result ( list ) into a string
+            if ui.PopupYesNo("Delete Password ?", result) == "Yes":
+                #overwrite all except searched tupel
+                updated_list = [] #create the updated list after delition
+                with open(".passwords.txt") as read_file:                 #open the password file
+                    reader = csv.reader(read_file, delimiter= ';')        #setup the reader
+                    for x in reader:                                      #loop thrue all read rows
+                        if x[0]!= result:                                 #as long as the website is not the searched website
+                            updated_list.append(x)                        #append the tupel to the updated list
+                    with open(".passwords.txt",'w') as write_file:        #open file to write the password
+                        writer = csv.writer(write_file, delimiter= ';')   #setup writer
+                        writer.writerows(updated_list)                    #write the updated list into the file
+                window.close()
+                return 1
+            else:       #do nothing if no is pressed
+                pass
 
 #Check if a user is already present (for logging in manager)
 def check_user():
@@ -312,6 +331,9 @@ def mainframe():
             if event =="-DELPW-":                       #if delete is pressed
                 result_del = delete_password()          #asign result of delete_password to result_del
                 read_all_passwords()                    #refresh the dictionary
+                if result_del == 1:
+                    for x in keys:                      #print loop fr all keys
+                        print_result(x,window)          #print key and value pair
                 if result_del == 0:                     #if deletion is canceled continue
                     continue
 
