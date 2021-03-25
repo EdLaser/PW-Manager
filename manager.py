@@ -109,11 +109,11 @@ def add_password():
 
     layout = [
             [ui.Text("Website", font = ('AppleGothic',12))],
-            [ui.InputText(key="-WEBSITE-",do_not_clear=False, font = ('AppleGothic',12))],
+            [ui.InputText(key="-WEBSITE-",do_not_clear=True, font = ('AppleGothic',12))],
             [ui.Text("Username", font = ('AppleGothic',12))],
-            [ui.InputText(key="-USERNAME-",do_not_clear=False, font = ('AppleGothic',12))],
+            [ui.InputText(key="-USERNAME-",do_not_clear=True, font = ('AppleGothic',12))],
             [ui.Text("Password", font = ('AppleGothic',12))],
-            [ui.InputText(key="-PASSWORD-",do_not_clear=False, font = ('AppleGothic',12))],
+            [ui.InputText(key="-PASSWORD-",do_not_clear=True, font = ('AppleGothic',12))],
             [ui.B("Confirm",bind_return_key=True, font = ('AppleGothic',12)),ui.B("Cancel", font = ('AppleGothic',12)), ui.B("Random PW", font = ('AppleGothic',12), key="-RANDOM-")]
         ]
     window = ui.Window("New Password",layout)
